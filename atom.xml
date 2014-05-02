@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Jorge Israel Peña</title>
+    <link href="http://blaenkdenum.com/atom.xml" rel="self" />
+    <link href="http://blaenkdenum.com" />
+    <id>http://blaenkdenum.com/atom.xml</id>
+    <author>
+        <name>Jorge Israel Peña</name>
+        <email>jorge.israel.p@gmail.com</email>
+    </author>
+    <updated>2014-05-04T00:00:00Z</updated>
+    <entry>
+    <title>Introduction</title>
+    <link href="http://blaenkdenum.com/posts/introduction/" />
+    <id>http://blaenkdenum.com/posts/introduction/</id>
+    <published>2014-05-04T00:00:00Z</published>
+    <updated>2014-05-04T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<p>Nothing major to say here</p>
+<h2 id="file-structure">File Structure</h2>
+<p>My <a href="https://github.com/victoredwardocallaghan">repositories</a></p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Option</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">build</td>
+<td style="text-align: left;">Generate the entire site</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">deploy</td>
+<td style="text-align: left;">Deploy the site using a custom deploy procedure</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Build</strong> creates a top-level directory <strong>generated/</strong> with two sub-directories: a directory <strong>cache/</strong> for cached content and a directory <strong>site/</strong> where the compiled site is stored.</p>
+<p><strong>Deploy</strong> puts the compiled site into top-level directory <strong>deploy/</strong> which is git-controlled and force pushes the content to the master branch, effectively deploying (on GitHub).</p>
+<h2 id="hakyll">Hakyll</h2>
+<p>For example, in the following Hakyll program:</p>
+<pre class="haskell"><code>main :: IO ()
+main = hakyll $ do
+  match &quot;images/*&quot; $ do
+      route   idRoute
+      compile copyFileCompiler</code></pre>
+<p><code>match &quot;images/*&quot;</code> is a <a href="http://hackage.haskell.org/packages/archive/hakyll/latest/doc/html/Hakyll-Core-Rules.html"><code>Rule</code></a> that states that the provider directory should match all files matching the glob <code>images/*</code>, <a href="http://hackage.haskell.org/packages/archive/hakyll/latest/doc/html/Hakyll-Core-Routes.html"><code>Route</code></a> them using the <code>idRoute</code>, and compile them using the <a href="http://hackage.haskell.org/packages/archive/hakyll/latest/doc/html/Hakyll-Core-Compiler.html"><code>Compiler</code></a> <code>copyFileCompiler</code>.</p>
+<h3 id="abbreviations">Abbreviations</h3>
+<h3 id="git-tag">Git Tag</h3>
+<p>In a <a href="/posts/commit-tag-for-jekyll/">previous post</a> I talked about a liquid tag I created for Jekyll which inserts the SHA of the commit on which the site was last generated. I have come to like this small feature of my site. It’s not some tacky “Powered by blah” footer. It’s pretty unobtrusive. It seems unimportant to people who wouldn’t understand what it’s about, and those who would understand it might immediately recognize its purpose.</p>
+<div class="callout">
+<strong>Update</strong>: I have stopped including the git commit in the footer of every page. The problem with doing this was that, in order to have every page reflect the new commit, I had to regenerate every page before deploy. This obviously doesn’t scale well once more and more pages are added to the site. Instead I have adopted a per-post commit and history link which I believe is a lot more meaningful and meshes perfectly well with generation of pages, i.e. if a post is modified, there’ll be a commit made for it and since it was modified it will have to be regenerated anyways. Now I simply include social links in the footer.
+</div>
+<p>One thing I forgot to update the previous post about was that I ended up switching from using the Rugged git-bindings for Ruby to just using straight up commands and reading their output. The reason for doing this was that, while everything worked perfectly fine on Linux, Rugged had problems building on Windows. It turned out that taking this approach ended up being simpler and had the added benefit of decreasing my dependencies.</p>
+<p>The equivalent of a liquid tag in Jekyll would be a field, expressed as a <code>Context</code>. For this reason I created the <code>gitTag</code> function that takes a desired key, such as <code>git</code> — which would be used as <code>$git$</code> in templates — and returns a <code>Context</code> which returns the <code>String</code> of formatted HTML. One problem was that to do this I had to use <code>IO</code>, so I needed some way to escape the <code>Compiler</code> Monad. It turned out that Hakyll already had a function for something like this called <code>unsafeCompiler</code>, which it uses for <code>UnixFilter</code> for example.</p>
+<p>Here’s what <code>gitTag</code> looks like:</p>
+<pre class="haskell"><code>gitTag :: String -&gt; Context String
+gitTag key = field key $ \_ -&gt; do
+  unsafeCompiler $ do
+    sha &lt;- readProcess &quot;git&quot; [&quot;log&quot;, &quot;-1&quot;, &quot;HEAD&quot;, &quot;--pretty=format:%H&quot;] []
+    message &lt;- readProcess &quot;git&quot; [&quot;log&quot;, &quot;-1&quot;, &quot;HEAD&quot;, &quot;--pretty=format:%s&quot;] []
+    return (&quot;&lt;a href=\&quot;https://github.com/blaenk/blaenk.github.io/commit/&quot; ++ sha ++
+           &quot;\&quot; title=\&quot;&quot; ++ message ++ &quot;\&quot;&gt;&quot; ++ (take 8 sha) ++ &quot;&lt;/a&gt;&quot;)</code></pre>
+<h2 id="conclusion">Conclusion</h2>
+<p>..</p>]]></summary>
+</entry>
+
+</feed>

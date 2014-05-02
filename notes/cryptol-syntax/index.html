@@ -1,0 +1,438 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Cryptol 2 Syntax - alt.folklore.things</title>
+  <meta name="author" content="Edward O'Callaghan">
+  <meta name="description" content="funfunctor">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="/favicon.png" rel="shortcut icon">
+  <link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Merriweather:900italic,900,700italic,400italic,700,400,300italic,300' rel='stylesheet' type='text/css'>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+  <link href='/css/screen.css' rel='stylesheet' type='text/css' media='screen' />
+  <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="/atom.xml" />
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src='/js/blaenk.js' type='text/javascript'></script>
+</head>
+<body>
+  <div class="wrapper">
+    <header id="header" class="inner">
+      <div id="stamp">
+        <h1><a href="/">alt.folklore.things</a></h1>
+        <h4>Will this Eternal September ever end..</h4>
+      </div>
+      <nav id="main-nav">
+        <ul class="main">
+          <li><a href="/posts/">Posts</a></li>
+          <li><a href="/notes/">Notes</a></li>
+          <li><a href="/research/">Research</a></li>
+          <li><a href="/about/">About</a></li>
+          <li><a id="search_btn">Search</a></li>
+        </ul>
+      </nav>
+      <nav id="mobile-nav">
+        <div class="alignleft menu">
+          <a class="button">Menu</a>
+          <div class="container">
+            <ul class="main">
+              <li><a href="/posts/">Posts</a></li>
+              <li><a href="/notes/">Notes</a></li>
+              <li><a href="/research/">Research</a></li>
+              <li><a href="/about/">About</a></li>
+              <li><a id="search_btn">Search</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="alignright search">
+          <a class="button"></a>
+          <div class="container">
+            <form action="http://google.com/search" method="get">
+              <input type="text" name="q" results="0">
+              <input type="hidden" name="q" value="site:alterapraxis.com">
+            </form>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <div id="content" class="inner">
+      <form class="desk_search" action="http://google.com/search" method="get">
+        <input id="search" type="text" name="q" results="0" placeholder="Search" autocomplete="off" spellcheck="false">
+        <input type="hidden" name="q" value="site:blaenkdenum.com">
+      </form>
+      <article class="post">
+  <h2 class="title"><a href="/notes/cryptol-syntax/"><span>Cryptol 2 Syntax</span></a></h2>
+  <div class="entry-content"><nav id="toc" class="right-toc"><p>Contents</p><ol><li><a href="#cryptol-version-2-syntax">Cryptol version 2 Syntax</a><ol><li><a href="#layout">Layout</a></li><li><a href="#comments">Comments</a></li><li><a href="#identifiers">Identifiers</a></li><li><a href="#keywords-and-built-in-operators">Keywords and Built-in Operators</a></li><li><a href="#numeric-literals">Numeric Literals</a></li><li><a href="#bits">Bits</a></li><li><a href="#if-then-else-with-multiway">If Then Else with Multiway</a></li><li><a href="#tuples-and-records">Tuples and Records</a></li><li><a href="#sequences">Sequences</a></li><li><a href="#functions">Functions</a></li><li><a href="#local-declarations">Local Declarations</a></li><li><a href="#explicit-type-instantiation">Explicit Type Instantiation</a></li><li><a href="#demoting-numeric-types-to-values">Demoting Numeric Types to Values</a></li><li><a href="#explicit-type-annotations">Explicit Type Annotations</a></li><li><a href="#type-signatures">Type Signatures</a></li><li><a href="#type-synonym-declarations">Type Synonym Declarations</a></li></ol></li></ol></nav>
+<h1 id="cryptol-version-2-syntax">Cryptol version 2 Syntax</h1>
+<h2 id="layout">Layout</h2>
+<p>Groups of declarations are organized based on indentation. Declarations with the same indentation belong to the same group. Lines of text that are indented more than the beginning of a declaration belong to that declaration, while lines of text that are indented less terminate a group of declaration. Groups of declarations appear at the top level of a Cryptol file, and inside <code>where</code> blocks in expressions. For example, consider the following declaration group</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="n">f</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">+</span> <span class="n">z</span>
+   <span class="kr">where</span>
+   <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span>
+   <span class="n">z</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+ <span class="n">g</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">y</span>
+</code></pre></figure>
+<p>This group has two declaration, one for <code>f</code> and one for <code>g</code>. All the lines between <code>f</code> and <code>g</code> that are indented more then <code>f</code> belong to <code>f</code>.</p>
+<p>This example also illustrates how groups of declarations may be nested within each other. For example, the <code>where</code> expression in the definition of <code>f</code> starts another group of declarations, containing <code>y</code> and <code>z</code>. This group ends just before <code>g</code>, because <code>g</code> is indented less than <code>y</code> and <code>z</code>.</p>
+<h2 id="comments">Comments</h2>
+<p>Cryptol supports block comments, which start with <code>/*</code> and end with <code>*/</code>, and line comments, which start with <code>//</code> and terminate at the end of the line. Block comments may be nested arbitrarily.</p>
+<p>Examples:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="o">/*</span> <span class="kt">This</span> <span class="n">is</span> <span class="n">a</span> <span class="n">block</span> <span class="n">comment</span> <span class="o">*/</span>
+ <span class="o">//</span> <span class="kt">This</span> <span class="n">is</span> <span class="n">a</span> <span class="n">line</span> <span class="n">comment</span>
+ <span class="o">/*</span> <span class="kt">This</span> <span class="n">is</span> <span class="n">a</span> <span class="o">/*</span> <span class="kt">Nested</span> <span class="o">*/</span> <span class="n">block</span> <span class="n">comment</span> <span class="o">*/</span>
+</code></pre></figure>
+<h2 id="identifiers">Identifiers</h2>
+<p>Cryptol identifiers consist of one or more characters. The first character must be either an English letter or underscore (<code>_</code>). The following characters may be an English letter, a decimal digit, underscore (<code>_</code>), or a prime (<code>'</code>). Some identifiers have special meaning in the language, so they may not be used in programmer-defined names (see <a href="#keywords-and-built-in-operators">Keywords</a>).</p>
+<p>Examples:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="n">name</span>    <span class="n">name1</span>    <span class="n">name&#39;</span>    <span class="n">longer_name</span>
+ <span class="kt">Name</span>    <span class="kt">Name2</span>    <span class="kt">Name&#39;&#39;</span>   <span class="n">longerName</span>
+</code></pre></figure>
+<h2 id="keywords-and-built-in-operators">Keywords and Built-in Operators</h2>
+<p>The following identifiers have special meanings in Cryptol, and may not be used for programmer defined names:</p>
+<!--- The table below can be generated by running `chop.hs` on this list:
+Arith
+Bit
+Cmp
+False
+Inf
+True
+else
+export
+extern
+fin
+if
+import
+inf
+lg2
+max
+min
+module
+newtype
+pragma
+property
+then
+type
+where
+width
+--->
+
+<figure class="codeblock"><pre><code class="highlight language-text">Arith   Inf       extern    inf    module      then     
+Bit     True      fin       lg2    newtype     type     
+Cmp     else      if        max    pragma      where    
+False   export    import    min    property    width    </code></pre></figure>
+<p>The following table contains Cryptol’s operators and their associativity with lowest precedence operators first, and highest precedence last.</p>
+<table>
+<caption>Operator precedences.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Associativity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>||</code></td>
+<td style="text-align: left;">left</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>^</code></td>
+<td style="text-align: left;">left</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&amp;&amp;</code></td>
+<td style="text-align: left;">left</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>-&gt;</code> (types)</td>
+<td style="text-align: left;">right</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>!=</code> <code>==</code></td>
+<td style="text-align: left;">not associative</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;</code> <code>&lt;</code> <code>&lt;=</code> <code>&gt;=</code></td>
+<td style="text-align: left;">not associative</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>#</code></td>
+<td style="text-align: left;">right</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;&gt;</code> <code>&lt;&lt;</code> <code>&gt;&gt;&gt;</code> <code>&lt;&lt;&lt;</code></td>
+<td style="text-align: left;">left</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>+</code> <code>-</code></td>
+<td style="text-align: left;">left</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>*</code> <code>/</code> <code>%</code></td>
+<td style="text-align: left;">left</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>^^</code></td>
+<td style="text-align: left;">right</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>!</code> <code>!!</code> <code>@</code> <code>@@</code></td>
+<td style="text-align: left;">left</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(unary) <code>-</code> <code>~</code></td>
+<td style="text-align: left;">right</td>
+</tr>
+</tbody>
+</table>
+<h2 id="numeric-literals">Numeric Literals</h2>
+<p>Numeric literals may be written in binary, octal, decimal, or hexadecimal notation. The base of a literal is determined by its prefix: <code>0b</code> for binary, <code>0o</code> for octal, no special prefix for decimal, and <code>0x</code> for hexadecimal.</p>
+<p>Examples:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="mi">254</span>                 <span class="o">//</span> <span class="kt">Decimal</span> <span class="n">literal</span>
+ <span class="mi">0254</span>                <span class="o">//</span> <span class="kt">Decimal</span> <span class="n">literal</span>
+ <span class="mi">0</span><span class="n">b11111110</span>          <span class="o">//</span> <span class="kt">Binary</span> <span class="n">literal</span>
+ <span class="mo">0o376</span>               <span class="o">//</span> <span class="kt">Octal</span> <span class="n">literal</span>
+ <span class="mh">0xFE</span>                <span class="o">//</span> <span class="kt">Hexadecimal</span> <span class="n">literal</span>
+ <span class="mh">0xfe</span>                <span class="o">//</span> <span class="kt">Hexadecimal</span> <span class="n">literal</span>
+</code></pre></figure>
+<p>Numeric literals represent finite bit sequences (i.e., they have type <code>[n]</code>). Using binary, octal, and hexadecimal notation results in bit sequences of a fixed length, depending on the number of digits in the literal. Decimal literals are overloaded, and so the length of the sequence is inferred from context in which the literal is used.</p>
+<p>Examples: <sub>~</sub> {.haskell} 0b1010 // : [4], 1 * number of digits 0o1234 // : [12], 3 * number of digits 0x1234 // : [16], 4 * number of digits</p>
+<p>10 // : {n}. (fin n, n &gt;= 4) =&gt; [n] // (need at least 4 bits)</p>
+<p>0 // : {n}. (fin n) =&gt; [n] <sub>~</sub></p>
+<h2 id="bits">Bits</h2>
+<p>The type <code>Bit</code> has two inhabitants: <code>True</code> and <code>False</code>. These values may be combined using various logical operators, or constructed as results of comparisons.</p>
+<table>
+<caption>Bit operations.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Associativity</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>||</code></td>
+<td style="text-align: left;">left</td>
+<td style="text-align: left;">Logical or</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>^</code></td>
+<td style="text-align: left;">left</td>
+<td style="text-align: left;">Exclusive-or</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&amp;&amp;</code></td>
+<td style="text-align: left;">left</td>
+<td style="text-align: left;">Logical and</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>!=</code> <code>==</code></td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">Not equals, equals</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;</code> <code>&lt;</code> <code>&lt;=</code> <code>&gt;=</code></td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">Comparisons</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>~</code></td>
+<td style="text-align: left;">right</td>
+<td style="text-align: left;">Logical negation</td>
+</tr>
+</tbody>
+</table>
+<h2 id="if-then-else-with-multiway">If Then Else with Multiway</h2>
+<p><code>If then else</code> has been extended to support multi-way conditionals.</p>
+<p>Examples: <sub>~</sub> {.haskell} x = if y % 2 == 0 then 22 else 33</p>
+<p>x = if y % 2 == 0 then 1 | y % 3 == 0 then 2 | y % 5 == 0 then 3 else 7 <sub>~</sub></p>
+<h2 id="tuples-and-records">Tuples and Records</h2>
+<p>Tuples and records are used for packaging multiples values together. Tuples are enclosed in parenthesis, while records are enclosed in braces. The components of both tuples and records are separated by commas. The components of tuples are expressions, while the components of records are a label and a value separated by an equal sign.</p>
+<p>Examples: <sub>~</sub> {.haskell} (1,2,3) // A tuple with 3 component () // A tuple with no components</p>
+<p>{ x = 1, y = 2 } // A record with two fields, <code>x</code> and <code>y</code> {} // A record with no fileds <sub>~</sub></p>
+<p>The components of tuples are identified by position, while the components of records are identified by their label, and so the ordering of record components is not important.</p>
+<p>Examples: <sub>~</sub> {.haskell} (1,2) == (1,2) // True (1,2) == (2,1) // False</p>
+<p>{ x = 1, y = 2 } == { x = 1, y = 2 } // True { x = 1, y = 2 } == { y = 2, x = 1 } // True <sub>~</sub></p>
+<p>The components of a record or a tuple may be accessed in two ways: via pattern matching or by using explicit component selectors. Explicit component selectors are written as follows:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="mi">1</span>           <span class="o">==</span> <span class="mi">15</span>
+ <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="mi">2</span>           <span class="o">==</span> <span class="mi">20</span>
+
+ <span class="p">{</span> <span class="n">x</span> <span class="ow">=</span> <span class="mi">15</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">20</span> <span class="p">}</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">15</span>
+</code></pre></figure>
+<p>Explicit record selectors may be used only if the program contains sufficient type information to determine the shape of the tuple or record. For example:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="kr">type</span> <span class="kt">T</span> <span class="ow">=</span> <span class="p">{</span> <span class="n">sign</span> <span class="ow">::</span> <span class="kt">Bit</span><span class="p">,</span> <span class="n">number</span> <span class="ow">::</span> <span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="p">}</span>
+
+ <span class="o">//</span> <span class="kt">Valid</span> <span class="n">defintion</span><span class="kt">:</span>
+ <span class="o">//</span> <span class="n">the</span> <span class="kr">type</span> <span class="kr">of</span> <span class="n">the</span> <span class="n">record</span> <span class="n">is</span> <span class="n">known</span><span class="o">.</span>
+ <span class="n">isPositive</span> <span class="kt">:</span> <span class="kt">T</span> <span class="ow">-&gt;</span> <span class="kt">Bit</span>
+ <span class="n">isPositive</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span><span class="o">.</span><span class="n">sign</span>
+
+ <span class="o">//</span> <span class="kt">Invalid</span> <span class="n">defintion</span><span class="kt">:</span>
+ <span class="o">//</span> <span class="n">insufficient</span> <span class="kr">type</span> <span class="n">information</span><span class="o">.</span>
+ <span class="n">badDef</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span><span class="o">.</span><span class="n">f</span>
+</code></pre></figure>
+<p>The components of a tuple or a record may also be access by using pattern matching. Patterns for tuples and records mirror the syntax for constructing values: tuple patterns use parenthesis, while record patterns use braces.</p>
+<p>Examples: <sub>~</sub> {.haskell} getFst (x,_) = x</p>
+<p>distance2 { x = xPos, y = yPos } = xPos ^^ 2 + yPos ^^ 2</p>
+<p>f x = fst + snd where <sub>~</sub></p>
+<h2 id="sequences">Sequences</h2>
+<p>A sequence is a fixed-length collection of element of the same type. The type of a finite sequence of length <code>n</code>, with elements of type <code>a</code> is <code>[n] a</code>. Often, a finite sequence of bits, <code>[n] Bit</code>, is called a <em>word</em>. We may abbreviate the type <code>[n] Bit</code> as <code>[n]</code>. An infinite sequence with elements of type <code>a</code> has type <code>[inf] a</code>, and <code>[inf]</code> is an infinite stream of bits.</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="p">[</span><span class="n">e1</span><span class="p">,</span><span class="n">e2</span><span class="p">,</span><span class="n">e3</span><span class="p">]</span>                        <span class="o">//</span> <span class="kt">A</span> <span class="n">sequence</span> <span class="n">with</span> <span class="n">three</span> <span class="n">elements</span>
+
+ <span class="p">[</span><span class="n">t</span> <span class="o">..</span> <span class="p">]</span>                           <span class="o">//</span> <span class="kt">Sequence</span> <span class="n">enumerations</span>
+ <span class="p">[</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span> <span class="o">..</span> <span class="p">]</span>                      <span class="o">//</span> <span class="kt">Step</span> <span class="n">by</span> <span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span>
+ <span class="p">[</span><span class="n">t1</span> <span class="o">..</span> <span class="n">t3</span> <span class="p">]</span>
+ <span class="p">[</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span> <span class="o">..</span> <span class="n">t3</span> <span class="p">]</span>
+ <span class="p">[</span><span class="n">e1</span> <span class="o">...</span> <span class="p">]</span>                         <span class="o">//</span> <span class="kt">Infinite</span> <span class="n">sequence</span> <span class="n">starting</span> <span class="n">at</span> <span class="n">e1</span>
+ <span class="p">[</span><span class="n">e1</span><span class="p">,</span> <span class="n">e2</span> <span class="o">...</span> <span class="p">]</span>                     <span class="o">//</span> <span class="kt">Infinite</span> <span class="n">sequence</span> <span class="n">stepping</span> <span class="n">by</span> <span class="n">e2</span><span class="o">-</span><span class="n">e1</span>
+
+ <span class="p">[</span> <span class="n">e</span> <span class="o">|</span> <span class="n">p11</span> <span class="ow">&lt;-</span> <span class="n">e11</span><span class="p">,</span> <span class="n">p12</span> <span class="ow">&lt;-</span> <span class="n">e12</span>      <span class="o">//</span> <span class="kt">Sequence</span> <span class="n">comprehensions</span>
+     <span class="o">|</span> <span class="n">p21</span> <span class="ow">&lt;-</span> <span class="n">e21</span><span class="p">,</span> <span class="n">p22</span> <span class="ow">&lt;-</span> <span class="n">e22</span> <span class="p">]</span>
+</code></pre></figure>
+<p>Note: the bounds in finite unbounded (those with ..) sequences are type expressions, while the bounds in bounded-finite and infinite sequences are value expressions.</p>
+<table>
+<caption>Sequence operations.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>#</code></td>
+<td style="text-align: left;">Sequence concatenation</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;&gt;</code> <code>&lt;&lt;</code></td>
+<td style="text-align: left;">Shift (right,left)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;&gt;&gt;</code> <code>&lt;&lt;&lt;</code></td>
+<td style="text-align: left;">Rotate (right,left)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>@</code> <code>!</code></td>
+<td style="text-align: left;">Access elements (front,back)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>@@</code> <code>!!</code></td>
+<td style="text-align: left;">Access sub-sequence (front,back)</td>
+</tr>
+</tbody>
+</table>
+<p>There are also lifted point-wise operations.</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="p">[</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p4</span><span class="p">]</span>          <span class="o">//</span> <span class="kt">Sequence</span> <span class="n">pattern</span>
+ <span class="n">p1</span> <span class="o">#</span> <span class="n">p2</span>                   <span class="o">//</span> <span class="kt">Split</span> <span class="n">sequence</span> <span class="n">pattern</span>
+</code></pre></figure>
+<h2 id="functions">Functions</h2>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="nf">\</span><span class="n">p1</span> <span class="n">p2</span> <span class="ow">-&gt;</span> <span class="n">e</span>              <span class="o">//</span> <span class="kt">Lambda</span> <span class="n">expression</span>
+ <span class="n">f</span> <span class="n">p1</span> <span class="n">p2</span> <span class="ow">=</span> <span class="n">e</span>              <span class="o">//</span> <span class="kt">Function</span> <span class="n">definition</span>
+</code></pre></figure>
+<h2 id="local-declarations">Local Declarations</h2>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="n">e</span> <span class="kr">where</span> <span class="n">ds</span>
+</code></pre></figure>
+<h2 id="explicit-type-instantiation">Explicit Type Instantiation</h2>
+<p>If <code>f</code> is a polymorphic value with type:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="n">f</span> <span class="kt">:</span> <span class="p">{</span> <span class="n">tyParam</span> <span class="p">}</span>
+
+ <span class="n">f</span> <span class="p">`{</span> <span class="n">tyParam</span> <span class="ow">=</span> <span class="n">t</span> <span class="p">}</span>
+</code></pre></figure>
+<h2 id="demoting-numeric-types-to-values">Demoting Numeric Types to Values</h2>
+<p>The value corresponding to a numeric type may be accessed using the following notation:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="p">`{</span><span class="n">t</span><span class="p">}</span>
+</code></pre></figure>
+<p>Here <code>t</code> should be a type expression with numeric kind. The resulting expression is a finite word, which is sufficiently large to accomodate the value of the type:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="p">`{</span><span class="n">t</span><span class="p">}</span> <span class="ow">::</span> <span class="p">{</span><span class="n">w</span> <span class="o">&gt;=</span> <span class="n">width</span> <span class="n">t</span><span class="p">}</span><span class="o">.</span> <span class="p">[</span><span class="n">w</span><span class="p">]</span>
+</code></pre></figure>
+<h2 id="explicit-type-annotations">Explicit Type Annotations</h2>
+<p>Explicit type annotations may be added on expressions, patterns, and in argument definitions.</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="n">e</span> <span class="kt">:</span> <span class="n">t</span>
+
+ <span class="n">p</span> <span class="kt">:</span> <span class="n">t</span>
+
+ <span class="n">f</span> <span class="p">(</span><span class="n">x</span> <span class="kt">:</span> <span class="n">t</span><span class="p">)</span> <span class="ow">=</span> <span class="o">...</span>
+</code></pre></figure>
+<h2 id="type-signatures">Type Signatures</h2>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="n">f</span><span class="p">,</span><span class="n">g</span> <span class="kt">:</span> <span class="p">{</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">}</span> <span class="p">(</span><span class="n">fin</span> <span class="n">a</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="n">b</span>
+</code></pre></figure>
+<h2 id="type-synonym-declarations">Type Synonym Declarations</h2>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="kr">type</span> <span class="kt">T</span> <span class="n">a</span> <span class="n">b</span> <span class="ow">=</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="n">b</span>
+</code></pre></figure></div>
+  <div class="meta">
+    <div class="meta-component"><i class="fa fa-calendar fa-fw"></i> May  4, 2014</div>
+    <div class="meta-component"><i class="fa fa-code-fork fa-fw"></i> <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commits/source/provider/notes/cryptol-syntax.markdown">History</a><span class="hash">, <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commit/f76d258" title="Initial customise">f76d258</a></span></div>
+    <div class="meta-component"><i class="fa fa-pencil fa-fw"></i> <a href="..">Notes</a></div>
+  </div>
+</article>
+<section id="comment">
+  <div id="disqus_thread" aria-live="polite">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+
+
+    </div>
+    <footer id="footer" class="inner">
+      <div id="social">
+        <a href="https://github.com/victoredwardocallaghan" title="github"><i class="fa fa-github-alt"></i></a>
+        &middot;
+        <a href="http://stackoverflow.com/users/xxxyyy/funfunctor" title="stackoverflow"><i class="fa fa-stack-overflow"></i></a>
+        &middot;
+        <a href="mailto:eocallaghan@alterapraxis.com" title="email"><i class="fa fa-envelope"></i></a>
+        &middot;
+        <a href="/atom.xml" title="feed"><i class="fa fa-rss-square"></i></a>
+      </div>
+    </footer>
+    
+    <!-- disqus -->
+<script async="true" type="text/javascript">
+  var disqus_shortname = 'blaenkdenum';
+  var disqus_identifier = 'http://blaenkdenum.com/notes/cryptol-syntax/';
+  var disqus_url = 'http://blaenkdenum.com/notes/cryptol-syntax/';
+  var disqus_script = 'embed.js';
+
+  (function () {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  }());
+
+  jQuery(function (){
+    jQuery(window).bind('orientationchange', function() {
+      DISQUS.reset({
+        reload: true,
+        config: function() {
+          this.page.identifier = 'http://blaenkdenum.com/notes/cryptol-syntax/'
+          this.page.url = 'http://blaenkdenum.com/notes/cryptol-syntax/'
+        }
+      });
+    });
+  });
+</script>
+
+    <!--MathJax CDN-->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        messageStyle: "none"
+      });
+
+      MathJax.Hub.Register.MessageHook('End Process', function() {
+        jQuery('#MathJax_Font_Test').empty();
+        jQuery('.MathJax_Display').parent('.math').addClass('mobile-math');
+      });
+    </script>
+    <script async="true" type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
+    </script>
+  </div>
+</body>
+</html>
