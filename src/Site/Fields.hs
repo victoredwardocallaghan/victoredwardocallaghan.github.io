@@ -41,12 +41,12 @@ sluggedTagsField key tags = field key $ \item -> do
         route' <- getRoute $ tagsMakeId tags $ slugify tag
         return $ renderLink tag route'
 
-    return $ renderHtml $ mconcat $ intersperse ", " $ catMaybes $ links
+    return $ renderHtml $ mconcat $ intersperse ", " $ catMaybes links
   where
     -- Render one tag link
     renderLink _   Nothing         = Nothing
     renderLink tag (Just filePath) = Just $
-        H.a ! A.href (toValue $ toUrl $ (takeDirectory filePath) ++ "/") $ toHtml tag
+        H.a ! A.href (toValue $ toUrl $ takeDirectory filePath ++ "/") $ toHtml tag
 
 defaultCtx :: Context String
 defaultCtx = mconcat
@@ -57,7 +57,7 @@ defaultCtx = mconcat
   , pathField "path"
   , constField "commentsJS" ""
   , constField "pushJS" ""
-  , constField "title" "Blaenk Denum"
+  , constField "title" "alt.folklore.things"
   , missingField
   ]
 
@@ -90,10 +90,10 @@ tagsCtx pat tag = mconcat
 titleField :: Context String
 titleField = field "pageTitle" $ \item -> do
   title <- getMetadataField (itemIdentifier item) "title"
-  maybe (return "Blaenk Denum") (return . (++ " - Blaenk Denum")) title
+  (return . maybe "alt.folklore.things" (++ " - alt.folklore.things")) title
 
 customTitleField :: String -> Context String
-customTitleField value = constField "pageTitle" $ value ++ " - Blaenk Denum"
+customTitleField value = constField "pageTitle" $ value ++ " - alt.folklore.things"
 
 -- url field without /index.html
 niceUrlField :: String -> Context a
@@ -159,7 +159,7 @@ socialTag key = field key $ \item -> do
   let sites = [("hn", "HN"), ("reddit", "Reddit")]
       link name ln = H.a ! A.href (toValue ln) $ toHtml (name :: String)
 
-  links <- fmap (intersperse ", " . catMaybes) . forM sites $ \(site, name) -> do
+  links <- fmap (intersperse ", " . catMaybes) . forM sites $ \(site, name) ->
              fmap (link name) <$> getMetadataField (itemIdentifier item) site
 
   if null links
@@ -171,7 +171,7 @@ socialTag key = field key $ \item -> do
 
 gitTag :: String -> Context String
 gitTag key = field key $ \item -> do
-  let fp = "provider/" ++ (toFilePath $ itemIdentifier item)
+  let fp = "provider/" ++ toFilePath (itemIdentifier item)
       gitLog :: String -> IO String
       gitLog format = readProcess "git"
                         [ "log"
@@ -184,8 +184,8 @@ gitTag key = field key $ \item -> do
     sha     <- gitLog "%h"
     message <- gitLog "%s"
 
-    let history = "https://github.com/blaenk/blaenk.github.io/commits/source/" ++ fp
-        commit  = "https://github.com/blaenk/blaenk.github.io/commit/" ++ sha
+    let history = "https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commits/source/" ++ fp
+        commit  = "https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commit/" ++ sha
 
     return $ if null sha
                then "Not Committed"
@@ -230,10 +230,10 @@ groupByYear items =
                    mapM (\x -> liftM (,x) (f x)) xs
 
     groupByYearM :: (Monad m) => m [(Integer, a)] -> m [(Integer, [a])]
-    groupByYearM xs = liftM (map mapper . groupBy f) xs
-      where f a b = (fst a) == (fst b)
+    groupByYearM = liftM (map mapper . groupBy f)
+      where f a b = fst a == fst b
             mapper [] = error "what"
-            mapper posts@((year, _):_) = (year, (map snd posts))
+            mapper posts@((year, _):_) = (year, map snd posts)
 
 yearFromUTC :: UTCTime -> Integer
 yearFromUTC utcTime = let (year, _, _) = toGregorian $ utctDay utcTime in year

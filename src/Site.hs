@@ -12,7 +12,7 @@ import Site.Pandoc
 import Data.Monoid ((<>))
 import GHC.IO.Encoding
 import System.Environment
-import Control.Monad (when, void)
+import Control.Monad (when, void, forever)
 import System.Exit (exitSuccess)
 import System.FilePath (takeFileName)
 
@@ -24,7 +24,6 @@ import qualified Data.Map as Map
 
 import qualified Data.Text as T
 import Control.Exception (fromException, handle)
-import Control.Monad (forever)
 import Control.Monad.IO.Class
 import Control.Monad.STM
 import Control.Concurrent
@@ -46,7 +45,7 @@ myHakyllConf = defaultConfiguration
   , ignoreFile = isIgnored
   }
   where isIgnored path
-          | ignoreFile defaultConfiguration $ name = True
+          | ignoreFile defaultConfiguration name = True
           -- 4913 is a file vim creates on windows to verify
           -- that it can indeed write to the specified path
           | name == "4913"                         = True
@@ -66,7 +65,7 @@ indexCompiler :: String -> Routes -> Pattern -> Rules ()
 indexCompiler name path itemsPattern =
   create [fromFilePath $ name ++ ".html"] $ do
     route path
-    compile $ do
+    compile $
       makeItem ""
         >>= loadAndApplyTemplate "templates/index.html" (archiveCtx itemsPattern)
         >>= loadAndApplyTemplate "templates/layout.html" defaultCtx
@@ -111,7 +110,7 @@ wsHandler channels pending = do
   atomically $ do
     chans <- readTVar channels
     case Map.lookup path chans of
-      Just (ch, refcount) -> do
+      Just (ch, refcount) ->
         if (refcount - 1) == 0
           then modifyTVar' channels $ Map.delete path
           else modifyTVar' channels $ Map.insert path (ch, refcount - 1)
@@ -183,7 +182,7 @@ main = do
 
   -- establish configuration based on preview-mode
   let previewMode = action == "watch" || action == "preview"
-      clean = action == "clean" && (not . null $ args) && ((head args) == "preview")
+      clean = action == "clean" && (not . null $ args) && (head args == "preview")
       hakyllConf =
         if previewMode
           then myHakyllConf
@@ -192,19 +191,17 @@ main = do
                , tmpDirectory         = "generated/preview/cache/tmp" }
           else myHakyllConf
       previewPattern stem =
-        let normal = fromGlob $ (stem) ++ "/*"
-            drafts = fromGlob $ "drafts/" ++ (stem) ++ "/*"
+        let normal = fromGlob $ stem ++ "/*"
+            drafts = fromGlob $ "drafts/" ++ stem ++ "/*"
         in if previewMode then normal .||. drafts else normal
       postsPattern = previewPattern "posts"
-      notesPattern = previewPattern "notes"
       pagesPattern = previewPattern "pages"
+      notesPattern = previewPattern "notes"
+      researchPattern = previewPattern "research"
+      aboutPattern = previewPattern "about"
 
   -- pygments server
-#ifdef mingw32_HOST_OS
-  let python = "python"
-#else
   let python = "python2"
-#endif
 
   (inp, out, _, _) <- runInteractiveProcess python ["src/pig.py"] Nothing Nothing
   let streams = (inp, out)
@@ -222,45 +219,53 @@ main = do
       route idRoute
       compile copyFileCompiler
 
-    match "scss/**.scss" $ do
+    match "scss/**.scss" $
       compile getResourceBody
 
     scssDependencies <- makePatternDependency "scss/**.scss"
-    rulesExtraDependencies [scssDependencies] $ do
+    rulesExtraDependencies [scssDependencies] $
       create ["css/screen.css"] $ do
-        route $ idRoute
-        compile $ sassCompiler
+        route idRoute
+        compile sassCompiler
 
     let posts = Content { contentPattern  = postsPattern
                         , contentRoute    = "posts/"
                         , contentTemplate = "post"
-                        , contentContext  = (sluggedTagsField "tags" tags <> postCtx previewMode)
+                        , contentContext  = sluggedTagsField "tags" tags <> postCtx previewMode
                         , contentLayoutContext = postCtx previewMode }
         notes = posts   { contentPattern  = notesPattern
                         , contentRoute    = "notes/"
                         , contentTemplate = "note"
                         , contentContext  = postCtx previewMode }
+        research = notes   { contentPattern  = researchPattern
+                        , contentRoute    = "research/"
+                        , contentTemplate = "research"
+                        , contentContext  = sluggedTagsField "tags" tags <> postCtx previewMode
+                        , contentLayoutContext = postCtx previewMode }
         pages = notes   { contentPattern  = pagesPattern
                         , contentRoute    = ""
                         , contentTemplate = "page" }
 
     contentCompiler posts channels streams
+    contentCompiler research channels streams
     contentCompiler notes channels streams
     contentCompiler pages channels streams
 
     indexCompiler "index" idRoute        postsPattern
+    indexCompiler "posts" (niceRoute "") postsPattern
     indexCompiler "notes" (niceRoute "") notesPattern
+    indexCompiler "research" (niceRoute "") researchPattern
 
     niceTags tags $ \tag pattern -> do
       route $ niceRoute "tags/"
-      compile $ do
+      compile $
         makeItem ""
           >>= loadAndApplyTemplate "templates/tags.html" (tagsCtx pattern tag)
           >>= loadAndApplyTemplate "templates/layout.html" (tagsCtx pattern tag)
 
     create ["404.html"] $ do
       route idRoute
-      compile $ do
+      compile $
         makeItem ""
           >>= loadAndApplyTemplate "templates/404.html" defaultCtx
           >>= loadAndApplyTemplate "templates/layout.html" (customTitleField "Not Found" <> defaultCtx)
@@ -272,10 +277,9 @@ main = do
 
     create ["atom.xml"] $ do
       route idRoute
-      compile $ do
+      compile $
         loadAll (postsPattern .&&. hasVersion "feed")
           >>= fmap (take 10) . recentFirst
           >>= renderAtom feedConf (postCtx previewMode <> bodyField "description")
 
     match "templates/*" $ compile templateCompiler
-
