@@ -1,0 +1,14 @@
+<!-- preview push -->
+<script async="true" type="text/javascript">
+  jQuery(function (){
+    var ws = new WebSocket('ws://localhost:9160/$path$');
+    ws.onmessage = function (e) {
+      var content = jQuery('article .entry-content');
+      content.html(e.data);
+
+      window.refresh();
+
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub, content[0]]);
+    };
+  });
+</script>
