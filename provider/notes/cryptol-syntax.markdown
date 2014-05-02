@@ -160,6 +160,7 @@ literal.  Decimal literals are overloaded, and so the length of the
 sequence is inferred from context in which the literal is used.
 
 Examples:
+
 ~~~ {.haskell}
  0b1010              // : [4],   1 * number of digits
  0o1234              // : [12],  3 * number of digits
@@ -196,6 +197,7 @@ If Then Else with Multiway
 conditionals.
 
 Examples:
+
 ~~~ {.haskell}
  x = if y % 2 == 0 then 22 else 33
 
@@ -216,6 +218,7 @@ components of records are a label and a value separated by an equal
 sign.
 
 Examples:
+
 ~~~ {.haskell}
  (1,2,3)           // A tuple with 3 component
  ()                // A tuple with no components
@@ -229,6 +232,7 @@ components of records are identified by their label, and so the
 ordering of record components is not important.
 
 Examples:
+
 ~~~ {.haskell}
             (1,2) == (1,2)               // True
             (1,2) == (2,1)               // False
@@ -271,6 +275,7 @@ for constructing values: tuple patterns use parenthesis, while record
 patterns use braces.
 
 Examples:
+
 ~~~ {.haskell}
  getFst (x,_) = x
 
