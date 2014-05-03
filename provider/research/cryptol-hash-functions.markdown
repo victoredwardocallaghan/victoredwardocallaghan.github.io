@@ -125,21 +125,29 @@ $m_2$   $a_1 + m_2 = a_2$     $b_1 + a_2 = b_2$
 .       .                     .
 $m_n$   $a_{n-1} + m_n = a_n$     $b_{n-1} + a_n = b_n$
 
-We can then directly implement the Cryptol implementation:
+We can then directly implement the Cryptol implementation as two recursive list
+comprehessions which are read modulo prime $p=65521$ as the computed as the
+Adler-32 checksum as follows:
 
 ~~~ {.haskell}
 module adler32 where
 
-//adler32 : {n,a} (fin n, a >= 16) => [8*a] -> [a]
-adler32 message = (as!0 + bs!0) % 65521
+adler32 : {n} (fin n) => [n][32] -> [32]
+adler32 message = (as!0)%p + (bs!0)%p * 65536
  where
-  bs = [0] # [a + b | a <- as
-                    | b <- bs
-                    ]
-  as = [1] # [a + m | a <- as
-                    | m <- split`{8} message
-                    ]
+  p = 65521
+  as = [1] # [a + m | a <- as | m <- message]
+  bs = [0] # [a + b | a <- tail as | b <- bs]
+
+// Test:
+//adler32 [ zero # c | c <- "Wikipedia" ]
+//300286872
 ~~~
+
+<div class="callout">
+**Thanks:** I would just like to thank a **vanila** on the **#cryptol**
+freenode.net IRC channel for help with this one.
+</div>
 
 
 Non-Cryptographic Hash Functions
