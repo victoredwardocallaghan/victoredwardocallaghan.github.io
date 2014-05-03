@@ -201,8 +201,13 @@ comprehessions:
 module Bernstein where
 
 // initial salt value = [0]
-bernHash message = hs
+bernHash : {n} (fin n) => [n][32] -> [32]
+bernHash message = (hs!0)
   where hs = [0] # [33*h + m | h <- hs | m <- message]
+
+// Test:
+//bernHash [ zero # c | c <- "Wikipedia" ]
+//2800982103
 ~~~
 
 
