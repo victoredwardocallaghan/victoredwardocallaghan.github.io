@@ -66,5 +66,29 @@ gitTag key = field key $ \_ -&gt; do
 <h2 id="conclusion">Conclusion</h2>
 <p>..</p>]]></summary>
 </entry>
+<entry>
+    <title>Functional Programming</title>
+    <link href="http://blaenkdenum.com/posts/functional-programming/" />
+    <id>http://blaenkdenum.com/posts/functional-programming/</id>
+    <published>2014-05-04T00:00:00Z</published>
+    <updated>2014-05-04T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<p>Function Programming (<strong>FP</strong>) is a programming language created by John Backus to support the function-level programming paradigm. This allows eliminating named variables.</p>
+<h1 id="overview">Overview</h1>
+<p>The <strong>values</strong> that <strong>FP</strong> programs map into one another comprise a set which is closed under <strong>sequence formation</strong>:</p>
+<p>if <span class="math"><em>x</em><sub>1</sub>, …, <em>x</em><sub><em>n</em></sub></span> are <strong>values</strong>, then the <strong>sequence</strong> <span class="math">⟨<em>x</em><sub>1</sub>, …, <em>x</em><sub><em>n</em></sub>⟩</span> is also a <strong>value</strong></p>
+<p>These values can be built from any set of atoms: booleans, integers, reals, characters, etc.:</p>
+<p><strong>boolean</strong> <span class="math"> : {<em>T</em>, <em>F</em>}</span></p>
+<p><strong>integer</strong> <span class="math"> : {0, 1, 2, …}</span></p>
+<p><strong>character</strong> <span class="math"> : {ʹ<em>a</em>ʹ, ʹ<em>b</em>ʹ, …}</span></p>
+<p><strong>symbol</strong> <span class="math"> : {<em>x</em>, <em>y</em>, …}</span></p>
+<p>The notation <span class="math">⊥</span> is for a undefined value. Sequences are <span class="math">⊥</span>-preserving: <br /><span class="math">⟨<em>x</em><sub>1</sub>, …, ⊥, …, <em>x</em><sub><em>n</em></sub>⟩ = ⊥</span><br /></p>
+<h1 id="functionals">Functionals</h1>
+<p>..</p>
+<h1 id="equational-functions">Equational functions</h1>
+<p>..</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>..</p>]]></summary>
+</entry>
 
 </feed>

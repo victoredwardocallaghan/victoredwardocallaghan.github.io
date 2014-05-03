@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>alt.folklore.things</title>
+  <title>Functional Programming - alt.folklore.things</title>
   <meta name="author" content="Edward O'Callaghan">
   <meta name="description" content="funfunctor">
 
@@ -67,22 +67,38 @@
         <input id="search" type="text" name="q" results="0" placeholder="Search" autocomplete="off" spellcheck="false">
         <input type="hidden" name="q" value="site:blaenkdenum.com">
       </form>
-      <section class="archives">
-  
-  <article>
-  <div class="post-info">
-    <h3 class="title"><a href="/posts/introduction/"><span>Introduction</span></a></h3>
-    <div class="excerpt">Nothing</div>
+      <article class="post">
+  <h2 class="title"><a href="/posts/functional-programming/"><span>Functional Programming</span></a></h2>
+  <div class="entry-content"><nav id="toc" class="right-toc"><p>Contents</p><ol><li><a href="#overview">Overview</a></li><li><a href="#functionals">Functionals</a></li><li><a href="#equational-functions">Equational functions</a></li><li><a href="#conclusion">Conclusion</a></li></ol></nav>
+<p>Function Programming (<strong>FP</strong>) is a programming language created by John Backus to support the function-level programming paradigm. This allows eliminating named variables.</p>
+<h1 id="overview">Overview</h1>
+<p>The <strong>values</strong> that <strong>FP</strong> programs map into one another comprise a set which is closed under <strong>sequence formation</strong>:</p>
+<p>if <span class="math">\(x_1, \dots, x_n\)</span> are <strong>values</strong>, then the <strong>sequence</strong> <span class="math">\(\langle x_1, \dots, x_n \rangle\)</span> is also a <strong>value</strong></p>
+<p>These values can be built from any set of atoms: booleans, integers, reals, characters, etc.:</p>
+<p><strong>boolean</strong> <span class="math">\(: \{T, F\}\)</span></p>
+<p><strong>integer</strong> <span class="math">\(: \{0, 1, 2, \dots \}\)</span></p>
+<p><strong>character</strong> <span class="math">\(: \{&#39;a&#39;, &#39;b&#39;, \dots \}\)</span></p>
+<p><strong>symbol</strong> <span class="math">\(: \{x, y, \dots \}\)</span></p>
+<p>The notation <span class="math">\(\bot\)</span> is for a undefined value. Sequences are <span class="math">\(\bot\)</span>-preserving: <span class="math">\[\langle x_1, \dots, \bot, \dots, x_n \rangle = \bot\]</span></p>
+<h1 id="functionals">Functionals</h1>
+<p>..</p>
+<h1 id="equational-functions">Equational functions</h1>
+<p>..</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>..</p></div>
+  <div class="meta">
+    <div class="meta-component"><i class="fa fa-calendar fa-fw"></i> May  4, 2014</div>
+    <div class="meta-component"><i class="fa fa-code-fork fa-fw"></i> Not Committed</div>
+    <div class="meta-component"><i class="fa fa-tags fa-fw"></i> <a href="/tags/fp/">FP</a>, <a href="/tags/haskell/">Haskell</a>, <a href="/tags/cryptol/">Cryptol</a></div>
+    
   </div>
 </article>
-<article>
-  <div class="post-info">
-    <h3 class="title"><a href="/posts/functional-programming/"><span>Functional Programming</span></a></h3>
-    <div class="excerpt">Nothing</div>
+<section id="comment">
+  <div id="disqus_thread" aria-live="polite">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
-</article>
-
 </section>
+
 
 
     </div>
@@ -98,7 +114,32 @@
       </div>
     </footer>
     
-    
+    <!-- disqus -->
+<script async="true" type="text/javascript">
+  var disqus_shortname = 'funfunctor';
+  var disqus_identifier = 'http://victoredwardocallaghan.github.io/posts/functional-programming/';
+  var disqus_url = 'http://victoredwardocallaghan.github.io/posts/functional-programming/';
+  var disqus_script = 'embed.js';
+
+  (function () {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  }());
+
+  jQuery(function (){
+    jQuery(window).bind('orientationchange', function() {
+      DISQUS.reset({
+        reload: true,
+        config: function() {
+          this.page.identifier = 'http://victoredwardocallaghan.github.io/posts/functional-programming/'
+          this.page.url = 'http://victoredwardocallaghan.github.io/posts/functional-programming/'
+        }
+      });
+    });
+  });
+</script>
+
     <!--MathJax CDN-->
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
