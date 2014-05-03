@@ -74,6 +74,25 @@ algebraically:
  crc64 = <| x^^64 + x^^4 +x^^3 + x + 1 |>
 ~~~
 
+A Cryptol implementation by **vanila** is given:
+
+~~~ {.haskell}
+ module crc where
+
+ crc1 : [2]
+ crc1 = <| x + 1 |> // parity test
+
+ crc8 : [9]
+ crc8  = <| x^^8 + x^^2 + x + 1 |>
+
+ crc32 : [33]
+ crc32 = <| x^^32 + x^^26 + x^^23 + x^^22 + x^^16 + x^^12 + x^^11 + x^^10 + x^^8 + x^^7 + x^^5 + x^^4 + x^^2 + x + 1 |>
+
+ bitstream str = [ b | c <- str, b <- c ]
+
+ crc poly text = pmod (bitstream text) poly
+~~~
+
 Checksums
 =========
 
@@ -181,7 +200,9 @@ comprehessions:
 ~~~ {.haskell}
 module Bernstein where
 
-hs message salt = [salt] # [33*h + m | h <- hs | m <- message]
+// initial salt value = [0]
+bernHash message = hs
+  where hs = [0] # [33*h + m | h <- hs | m <- message]
 ~~~
 
 
