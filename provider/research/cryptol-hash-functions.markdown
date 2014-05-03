@@ -163,6 +163,27 @@ Zobrist hashing         variable      xor
 Bernstein hash          32 bits       -
 Jenkins hash function   32/64 bits    xor/addition
 
+Bernstein's Hash
+----------------
+
+The Bernstein's hash is defined by the following recursion relation:
+
+$$
+H_{k+1} = 33 * H_k + m_k : 0 \leq k < n
+$$
+
+for some message **M** with length **n** bytes, with initial condition $H_0=$
+some numerical salt.
+
+We can then directly implement the Cryptol implementation as a recursive list
+comprehessions:
+
+~~~ {.haskell}
+module Bernstein where
+
+hs message salt = [salt] # [33*h + m | h <- hs | m <- message]
+~~~
+
 
 Cryptographic Hash Functions
 ============================
