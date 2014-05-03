@@ -246,19 +246,23 @@ adler32(M) = a(M) + b(M) \mod 65521
 </tr>
 </tbody>
 </table>
-<p>We can then directly implement the Cryptol implementation:</p>
+<p>We can then directly implement the Cryptol implementation as two recursive list comprehessions which are read modulo prime <span class="math">\(p=65521\)</span> as the computed as the Adler-32 checksum as follows:</p>
 <figure class="codeblock"><pre><code class="highlight language-haskell"><span class="kr">module</span> <span class="err">adler32</span> <span class="err">where</span>
 
-<span class="err">//adler32</span> <span class="err">:</span> <span class="err">{n,a}</span> <span class="err">(fin</span> <span class="err">n,</span> <span class="err">a</span> <span class="err">&gt;=</span> <span class="err">16)</span> <span class="err">=&gt;</span> <span class="err">[8*a]</span> <span class="err">-&gt;</span> <span class="err">[a]</span>
-<span class="err">adler32</span> <span class="err">message</span> <span class="err">=</span> <span class="err">(as!0</span> <span class="err">+</span> <span class="err">bs!0)</span> <span class="err">%</span> <span class="err">65521</span>
+<span class="err">adler32</span> <span class="err">:</span> <span class="err">{n}</span> <span class="err">(fin</span> <span class="err">n)</span> <span class="err">=&gt;</span> <span class="err">[n][32]</span> <span class="err">-&gt;</span> <span class="err">[32]</span>
+<span class="err">adler32</span> <span class="err">message</span> <span class="err">=</span> <span class="err">(as!0)%p</span> <span class="err">+</span> <span class="err">(bs!0)%p</span> <span class="err">*</span> <span class="err">65536</span>
  <span class="err">where</span>
-  <span class="err">bs</span> <span class="err">=</span> <span class="err">[0]</span> <span class="err">#</span> <span class="err">[a</span> <span class="err">+</span> <span class="err">b</span> <span class="err">|</span> <span class="err">a</span> <span class="err">&lt;-</span> <span class="err">as</span>
-                    <span class="err">|</span> <span class="err">b</span> <span class="err">&lt;-</span> <span class="err">bs</span>
-                    <span class="err">]</span>
-  <span class="err">as</span> <span class="err">=</span> <span class="err">[1]</span> <span class="err">#</span> <span class="err">[a</span> <span class="err">+</span> <span class="err">m</span> <span class="err">|</span> <span class="err">a</span> <span class="err">&lt;-</span> <span class="err">as</span>
-                    <span class="err">|</span> <span class="err">m</span> <span class="err">&lt;-</span> <span class="err">split`{8}</span> <span class="err">message</span>
-                    <span class="err">]</span>
+  <span class="err">p</span> <span class="err">=</span> <span class="err">65521</span>
+  <span class="err">as</span> <span class="err">=</span> <span class="err">[1]</span> <span class="err">#</span> <span class="err">[a</span> <span class="err">+</span> <span class="err">m</span> <span class="err">|</span> <span class="err">a</span> <span class="err">&lt;-</span> <span class="err">as</span> <span class="err">|</span> <span class="err">m</span> <span class="err">&lt;-</span> <span class="err">message]</span>
+  <span class="err">bs</span> <span class="err">=</span> <span class="err">[0]</span> <span class="err">#</span> <span class="err">[a</span> <span class="err">+</span> <span class="err">b</span> <span class="err">|</span> <span class="err">a</span> <span class="err">&lt;-</span> <span class="err">tail</span> <span class="err">as</span> <span class="err">|</span> <span class="err">b</span> <span class="err">&lt;-</span> <span class="err">bs]</span>
+
+<span class="err">//</span> <span class="nn">Test</span><span class="kt">:</span>
+<span class="o">//</span><span class="n">adler32</span> <span class="p">[</span> <span class="n">zero</span> <span class="o">#</span> <span class="n">c</span> <span class="o">|</span> <span class="n">c</span> <span class="ow">&lt;-</span> <span class="s">&quot;Wikipedia&quot;</span> <span class="p">]</span>
+<span class="o">//</span><span class="mi">300286872</span>
 </code></pre></figure>
+<div class="callout">
+<strong>Thanks:</strong> I would just like to thank a <strong>vanila</strong> on the <strong>#cryptol</strong> freenode.net IRC channel for help with this one.
+</div>
 <h1 id="non-cryptographic-hash-functions">Non-Cryptographic Hash Functions</h1>
 <h2 id="summary-2">Summary</h2>
 <table>
@@ -319,7 +323,7 @@ adler32(M) = a(M) + b(M) \mod 65521
 <p>Bernstein’s hash replaces addition with XOR for the combining step.</p></div>
   <div class="meta">
     <div class="meta-component"><i class="fa fa-calendar fa-fw"></i> May  4, 2014</div>
-    <div class="meta-component"><i class="fa fa-code-fork fa-fw"></i> <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commits/source/provider/research/cryptol-hash-functions.markdown">History</a><span class="hash">, <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commit/79227c5" title="draft outline of hash func">79227c5</a></span></div>
+    <div class="meta-component"><i class="fa fa-code-fork fa-fw"></i> <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commits/source/provider/research/cryptol-hash-functions.markdown">History</a><span class="hash">, <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commit/24bc598" title="continue with draft hasher writeup">24bc598</a></span></div>
     <div class="meta-component"><i class="fa fa-tags fa-fw"></i> <a href="/tags/cryptol/">Cryptol</a>, <a href="/tags/fp/">FP</a></div>
     
   </div>
