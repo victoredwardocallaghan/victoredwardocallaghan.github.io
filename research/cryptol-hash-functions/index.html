@@ -143,6 +143,22 @@
  <span class="n">crc32</span> <span class="ow">=</span> <span class="o">&lt;|</span> <span class="n">x</span><span class="o">^^</span><span class="mi">32</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">26</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">23</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">22</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">16</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">12</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">11</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">10</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">8</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">7</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">5</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">4</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">|&gt;</span>
  <span class="n">crc64</span> <span class="ow">=</span> <span class="o">&lt;|</span> <span class="n">x</span><span class="o">^^</span><span class="mi">64</span> <span class="o">+</span> <span class="n">x</span><span class="o">^^</span><span class="mi">4</span> <span class="o">+</span><span class="n">x</span><span class="o">^^</span><span class="mi">3</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">|&gt;</span>
 </code></pre></figure>
+<p>A Cryptol implementation by <strong>vanila</strong> is given:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"> <span class="kr">module</span> <span class="err">crc</span> <span class="err">where</span>
+
+ <span class="err">crc1</span> <span class="err">:</span> <span class="err">[2]</span>
+ <span class="err">crc1</span> <span class="err">=</span> <span class="err">&lt;|</span> <span class="err">x</span> <span class="err">+</span> <span class="err">1</span> <span class="err">|&gt;</span> <span class="err">//</span> <span class="err">parity</span> <span class="err">test</span>
+
+ <span class="err">crc8</span> <span class="err">:</span> <span class="err">[9]</span>
+ <span class="err">crc8</span>  <span class="err">=</span> <span class="err">&lt;|</span> <span class="err">x^^8</span> <span class="err">+</span> <span class="err">x^^2</span> <span class="err">+</span> <span class="err">x</span> <span class="err">+</span> <span class="err">1</span> <span class="err">|&gt;</span>
+
+ <span class="err">crc32</span> <span class="err">:</span> <span class="err">[33]</span>
+ <span class="err">crc32</span> <span class="err">=</span> <span class="err">&lt;|</span> <span class="err">x^^32</span> <span class="err">+</span> <span class="err">x^^26</span> <span class="err">+</span> <span class="err">x^^23</span> <span class="err">+</span> <span class="err">x^^22</span> <span class="err">+</span> <span class="err">x^^16</span> <span class="err">+</span> <span class="err">x^^12</span> <span class="err">+</span> <span class="err">x^^11</span> <span class="err">+</span> <span class="err">x^^10</span> <span class="err">+</span> <span class="err">x^^8</span> <span class="err">+</span> <span class="err">x^^7</span> <span class="err">+</span> <span class="err">x^^5</span> <span class="err">+</span> <span class="err">x^^4</span> <span class="err">+</span> <span class="err">x^^2</span> <span class="err">+</span> <span class="err">x</span> <span class="err">+</span> <span class="err">1</span> <span class="err">|&gt;</span>
+
+ <span class="err">bitstream</span> <span class="err">str</span> <span class="err">=</span> <span class="err">[</span> <span class="err">b</span> <span class="err">|</span> <span class="err">c</span> <span class="err">&lt;-</span> <span class="err">str,</span> <span class="err">b</span> <span class="err">&lt;-</span> <span class="err">c</span> <span class="err">]</span>
+
+ <span class="err">crc</span> <span class="err">poly</span> <span class="err">text</span> <span class="err">=</span> <span class="err">pmod</span> <span class="err">(bitstream</span> <span class="err">text)</span> <span class="err">poly</span>
+</code></pre></figure>
 <h1 id="checksums">Checksums</h1>
 <h2 id="summary-1">Summary</h2>
 <table>
@@ -305,7 +321,9 @@ H_{k+1} = 33 * H_k + m_k : 0 \leq k &lt; n
 <p>We can then directly implement the Cryptol implementation as a recursive list comprehessions:</p>
 <figure class="codeblock"><pre><code class="highlight language-haskell"><span class="kr">module</span> <span class="nn">Bernstein</span> <span class="kr">where</span>
 
-<span class="nf">hs</span> <span class="n">message</span> <span class="n">salt</span> <span class="ow">=</span> <span class="p">[</span><span class="n">salt</span><span class="p">]</span> <span class="o">#</span> <span class="p">[</span><span class="mi">33</span><span class="o">*</span><span class="n">h</span> <span class="o">+</span> <span class="n">m</span> <span class="o">|</span> <span class="n">h</span> <span class="ow">&lt;-</span> <span class="n">hs</span> <span class="o">|</span> <span class="n">m</span> <span class="ow">&lt;-</span> <span class="n">message</span><span class="p">]</span>
+<span class="o">//</span> <span class="n">initial</span> <span class="n">salt</span> <span class="n">value</span> <span class="ow">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nf">bernHash</span> <span class="n">message</span> <span class="ow">=</span> <span class="n">hs</span>
+  <span class="kr">where</span> <span class="n">hs</span> <span class="ow">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">#</span> <span class="p">[</span><span class="mi">33</span><span class="o">*</span><span class="n">h</span> <span class="o">+</span> <span class="n">m</span> <span class="o">|</span> <span class="n">h</span> <span class="ow">&lt;-</span> <span class="n">hs</span> <span class="o">|</span> <span class="n">m</span> <span class="ow">&lt;-</span> <span class="n">message</span><span class="p">]</span>
 </code></pre></figure>
 <h1 id="cryptographic-hash-functions">Cryptographic Hash Functions</h1>
 <h2 id="summary-3">Summary</h2>
@@ -334,7 +352,7 @@ H_{k+1} = 33 * H_k + m_k : 0 \leq k &lt; n
 <p>Bernstein’s hash replaces addition with XOR for the combining step.</p></div>
   <div class="meta">
     <div class="meta-component"><i class="fa fa-calendar fa-fw"></i> May  4, 2014</div>
-    <div class="meta-component"><i class="fa fa-code-fork fa-fw"></i> <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commits/source/provider/research/cryptol-hash-functions.markdown">History</a><span class="hash">, <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commit/eb5deaa" title="make a start on Bernstein hasher">eb5deaa</a></span></div>
+    <div class="meta-component"><i class="fa fa-code-fork fa-fw"></i> <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commits/source/provider/research/cryptol-hash-functions.markdown">History</a><span class="hash">, <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commit/0409e51" title="update crc section and bernstein hash">0409e51</a></span></div>
     <div class="meta-component"><i class="fa fa-tags fa-fw"></i> <a href="/tags/cryptol/">Cryptol</a>, <a href="/tags/fp/">FP</a></div>
     
   </div>
