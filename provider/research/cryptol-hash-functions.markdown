@@ -210,6 +210,63 @@ bernHash message = (hs!0)
 //2800982103
 ~~~
 
+Suppose we would like to know if the hash has collisions, that is to say a
+non-injective function. A injection is defined as the condition, if $f(x)=f(y)
+\Rightarrow x=y$. Hence we express the condition as so:
+
+~~~ {.haskell}
+prop_injective x y = if bernHash x == bernHash y then x == y else True
+~~~
+
+Searching the entire state-space by randomised testing is fairly useless in
+Cryptography, as seen:
+
+~~~ {.bash}
+Bernstein> :check (prop_injective : [9][32] -> [9][32] -> Bit)
+Using random testing.
+passed 100 tests.
+Coverage: 0.00% (100 of 2^^576 values)
+~~~
+
+Here we searched $2^{576}$ possible values and found no problems, however our
+coverage is $0.00\%$! Rather than trying to search for values that make a
+function work we should search for values that do not as to obtain a
+contradition, if any. We may achieve this goal by using the **SAT solver** as
+follows:
+
+~~~ {.bash}
+Bernstein> :prove (prop_injective : [2][32] -> [2][32] -> Bit)
+(prop_injective : [2][32] -> [2][32] -> Bit) [3020467164, 2155207698]
+                                              [1914480668, 4293023698] = False
+~~~
+
+and we have found a counter example!
+
+Modified Bernstein's Hash
+-------------------------
+
+The modified Bernstein's hash replaces addition with XOR for the combining
+step. Hence the modified Bernstein's hash is defined by the following recursion
+relation:
+
+$$
+H_{k+1} = 33 * H_k \oplus m_k : 0 \leq k < n
+$$
+
+for some message **M** with length **n** bytes, with initial condition $H_0=$
+some numerical salt.
+
+We can then directly imedately go to the Cryptol implementation:
+
+~~~ {.haskell}
+module Bernstein where
+
+// initial salt value = [0]
+bernHash : {n} (fin n) => [n][32] -> [32]
+bernHash message = (hs!0)
+  where hs = [0] # [33*h ^ m | h <- hs | m <- message]
+~~~
+
 
 Cryptographic Hash Functions
 ============================
@@ -221,9 +278,3 @@ Name            Length        Type
 ----            ------        ----
 SHA-3 (Keccak)  arbitrary     Sponge function
 Skin            arbitrary     Unique Block Iteration
-
-
-Modified Bernstein's Hash
--------------------------
-
-Bernstein's hash replaces addition with XOR for the combining step.
