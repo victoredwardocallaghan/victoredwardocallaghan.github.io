@@ -69,7 +69,7 @@
       </form>
       <article class="post">
   <h2 class="title"><a href="/research/cryptol-hash-functions/"><span>Hash functions in Cryptol 2</span></a></h2>
-  <div class="entry-content"><nav id="toc" class="right-toc"><p>Contents</p><ol><li><a href="#hash-functions-in-cryptol-2">Hash Functions in Cryptol 2</a></li><li><a href="#cyclic-redundancy-checks">Cyclic Redundancy Checks</a><ol><li><a href="#summary">Summary</a></li><li><a href="#table-of-common-crc-polynomials">Table of common CRC polynomials</a></li><li><a href="#polynomials-in-gf2k-for-some-k">Polynomials in <span class="math">\(GF(2^k)\)</span> for some <span class="math">\(k\)</span></a></li></ol></li><li><a href="#checksums">Checksums</a><ol><li><a href="#summary-1">Summary</a></li><li><a href="#adler-32">Adler-32</a></li></ol></li><li><a href="#non-cryptographic-hash-functions">Non-Cryptographic Hash Functions</a><ol><li><a href="#summary-2">Summary</a></li><li><a href="#bernsteins-hash">Bernstein’s Hash</a></li></ol></li><li><a href="#cryptographic-hash-functions">Cryptographic Hash Functions</a><ol><li><a href="#summary-3">Summary</a></li><li><a href="#modified-bernsteins-hash">Modified Bernstein’s Hash</a></li></ol></li></ol></nav>
+  <div class="entry-content"><nav id="toc" class="right-toc"><p>Contents</p><ol><li><a href="#hash-functions-in-cryptol-2">Hash Functions in Cryptol 2</a></li><li><a href="#cyclic-redundancy-checks">Cyclic Redundancy Checks</a><ol><li><a href="#summary">Summary</a></li><li><a href="#table-of-common-crc-polynomials">Table of common CRC polynomials</a></li><li><a href="#polynomials-in-gf2k-for-some-k">Polynomials in <span class="math">\(GF(2^k)\)</span> for some <span class="math">\(k\)</span></a></li></ol></li><li><a href="#checksums">Checksums</a><ol><li><a href="#summary-1">Summary</a></li><li><a href="#adler-32">Adler-32</a></li></ol></li><li><a href="#non-cryptographic-hash-functions">Non-Cryptographic Hash Functions</a><ol><li><a href="#summary-2">Summary</a></li><li><a href="#bernsteins-hash">Bernstein’s Hash</a></li><li><a href="#modified-bernsteins-hash">Modified Bernstein’s Hash</a></li></ol></li><li><a href="#cryptographic-hash-functions">Cryptographic Hash Functions</a><ol><li><a href="#summary-3">Summary</a></li></ol></li></ol></nav>
 <h1 id="hash-functions-in-cryptol-2">Hash Functions in Cryptol 2</h1>
 <p>Let us begin with some basic defintions:</p>
 <div class="callout">
@@ -330,6 +330,35 @@ H_{k+1} = 33 * H_k + m_k : 0 \leq k &lt; n
 <span class="o">//</span><span class="n">bernHash</span> <span class="p">[</span> <span class="n">zero</span> <span class="o">#</span> <span class="n">c</span> <span class="o">|</span> <span class="n">c</span> <span class="ow">&lt;-</span> <span class="s">&quot;Wikipedia&quot;</span> <span class="p">]</span>
 <span class="o">//</span><span class="mi">2800982103</span>
 </code></pre></figure>
+<p>Suppose we would like to know if the hash has collisions, that is to say a non-injective function. A injection is defined as the condition, if <span class="math">\(f(x)=f(y) \Rightarrow x=y\)</span>. Hence we express the condition as so:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"><span class="nf">prop_injective</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="kr">if</span> <span class="n">bernHash</span> <span class="n">x</span> <span class="o">==</span> <span class="n">bernHash</span> <span class="n">y</span> <span class="kr">then</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span> <span class="kr">else</span> <span class="kt">True</span>
+</code></pre></figure>
+<p>Searching the entire state-space by randomised testing is fairly useless in Cryptography, as seen:</p>
+<figure class="codeblock"><pre><code class="highlight language-bash">Bernstein&gt; :check <span class="o">(</span>prop_injective : <span class="o">[</span>9<span class="o">][</span>32<span class="o">]</span> -&gt; <span class="o">[</span>9<span class="o">][</span>32<span class="o">]</span> -&gt; Bit<span class="o">)</span>
+Using random testing.
+passed 100 tests.
+Coverage: 0.00% <span class="o">(</span>100 of 2^^576 values<span class="o">)</span>
+</code></pre></figure>
+<p>Here we searched <span class="math">\(2^{576}\)</span> possible values and found no problems, however our coverage is <span class="math">\(0.00\%\)</span>! Rather than trying to search for values that make a function work we should search for values that do not as to obtain a contradition, if any. We may achieve this goal by using the <strong>SAT solver</strong> as follows:</p>
+<figure class="codeblock"><pre><code class="highlight language-bash">Bernstein&gt; :prove <span class="o">(</span>prop_injective : <span class="o">[</span>2<span class="o">][</span>32<span class="o">]</span> -&gt; <span class="o">[</span>2<span class="o">][</span>32<span class="o">]</span> -&gt; Bit<span class="o">)</span>
+<span class="o">(</span>prop_injective : <span class="o">[</span>2<span class="o">][</span>32<span class="o">]</span> -&gt; <span class="o">[</span>2<span class="o">][</span>32<span class="o">]</span> -&gt; Bit<span class="o">)</span> <span class="o">[</span>3020467164, 2155207698<span class="o">]</span>
+                                              <span class="o">[</span>1914480668, 4293023698<span class="o">]</span> <span class="o">=</span> False
+</code></pre></figure>
+<p>and we have found a counter example!</p>
+<h2 id="modified-bernsteins-hash">Modified Bernstein’s Hash</h2>
+<p>The modified Bernstein’s hash replaces addition with XOR for the combining step. Hence the modified Bernstein’s hash is defined by the following recursion relation:</p>
+<p><span class="math">\[
+H_{k+1} = 33 * H_k \oplus m_k : 0 \leq k &lt; n
+\]</span></p>
+<p>for some message <strong>M</strong> with length <strong>n</strong> bytes, with initial condition <span class="math">\(H_0=\)</span> some numerical salt.</p>
+<p>We can then directly imedately go to the Cryptol implementation:</p>
+<figure class="codeblock"><pre><code class="highlight language-haskell"><span class="kr">module</span> <span class="nn">Bernstein</span> <span class="kr">where</span>
+
+<span class="o">//</span> <span class="n">initial</span> <span class="n">salt</span> <span class="n">value</span> <span class="ow">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nf">bernHash</span> <span class="kt">:</span> <span class="p">{</span><span class="n">n</span><span class="p">}</span> <span class="p">(</span><span class="n">fin</span> <span class="n">n</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">32</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="mi">32</span><span class="p">]</span>
+<span class="nf">bernHash</span> <span class="n">message</span> <span class="ow">=</span> <span class="p">(</span><span class="n">hs</span><span class="o">!</span><span class="mi">0</span><span class="p">)</span>
+  <span class="kr">where</span> <span class="n">hs</span> <span class="ow">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">#</span> <span class="p">[</span><span class="mi">33</span><span class="o">*</span><span class="n">h</span> <span class="o">^</span> <span class="n">m</span> <span class="o">|</span> <span class="n">h</span> <span class="ow">&lt;-</span> <span class="n">hs</span> <span class="o">|</span> <span class="n">m</span> <span class="ow">&lt;-</span> <span class="n">message</span><span class="p">]</span>
+</code></pre></figure>
 <h1 id="cryptographic-hash-functions">Cryptographic Hash Functions</h1>
 <h2 id="summary-3">Summary</h2>
 <table>
@@ -352,9 +381,7 @@ H_{k+1} = 33 * H_k + m_k : 0 \leq k &lt; n
 <td style="text-align: left;">Unique Block Iteration</td>
 </tr>
 </tbody>
-</table>
-<h2 id="modified-bernsteins-hash">Modified Bernstein’s Hash</h2>
-<p>Bernstein’s hash replaces addition with XOR for the combining step.</p></div>
+</table></div>
   <div class="meta">
     <div class="meta-component"><i class="fa fa-calendar fa-fw"></i> May  4, 2014</div>
     <div class="meta-component"><i class="fa fa-code-fork fa-fw"></i> <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commits/source/provider/research/cryptol-hash-functions.markdown">History</a><span class="hash">, <a href="https://github.com/victoredwardocallaghan/victoredwardocallagan.github.io/commit/e248363" title="fixup Bernstein hasher">e248363</a></span></div>
@@ -385,7 +412,7 @@ H_{k+1} = 33 * H_k + m_k : 0 \leq k &lt; n
     
     <!-- disqus -->
 <script async="true" type="text/javascript">
-  var disqus_shortname = 'funfunctor';
+  var disqus_shortname = 'altfolklorethings';
   var disqus_identifier = 'http://victoredwardocallaghan.github.io/research/cryptol-hash-functions/';
   var disqus_url = 'http://victoredwardocallaghan.github.io/research/cryptol-hash-functions/';
   var disqus_script = 'embed.js';
